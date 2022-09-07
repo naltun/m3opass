@@ -7,7 +7,10 @@
 # START global variables
 ###
 
-M3OPASS_VERSION=0.1.0
+M3OPASS_VERSION=0.1.1
+
+# Create command variables
+M3OPASS_CREATE_PASS_LENGTH=16
 
 ###
 # END global variables
@@ -33,13 +36,13 @@ m3opass_print_usage() {
 m3opass_print_create_usage() {
     echo "usage: m3opass create [ OPTS ]"
     echo
-    # @TODO: Implement -l, --length / -q, --quiet / -s, --store functionalities
+    # @TODO: Implement -l, --length / -s, --store functionalities
     # echo "Available options:"
     # echo "  -l, --length <int>    Generate password length of <int> length"
     # echo "                         Default length: 16"
     # echo
-    # echo "  -q, --quiet            Only print the generated password"
-    # echo "                         Omit -s, --store to print the new password to stdard output"
+    echo "  -q, --quiet            Only print the generated password"
+    echo "                          Omit -s, --store to print the new password to stdard output"
     # echo
     # echo "  -s, --store <str>     Store password with a name of <str>"
 }
@@ -56,6 +59,14 @@ m3opass_check_env() {
     [ -z "$M3O_API_TOKEN" ] \
         && echo "\$M3O_API_TOKEN is unset, please set your M3O token, e.g. \`export M3O_API_TOKEN=<TOKEN>'" \
         && exit 1
+}
+
+m3opass_parse_create_opts() {
+    for opt in "$@"; do
+        case "$opt" in
+            -q|--quiet) M3OPASS_CREATE_QUIET=1 ;;
+        esac
+    done
 }
 
 m3opass_service_fetch() {
@@ -77,14 +88,18 @@ m3opass_service_fetch() {
 m3opass_create_pass() {
     [ "$#" -lt 1  ] && m3opass_print_create_usage && exit 1
     [ "$2" = help ] && m3opass_print_create_usage && exit 0
+    m3opass_parse_create_opts "$@"
 
     m3o_service="password/Generate"
-    m3o_service_data='{"length": 16}'
+    m3o_service_data="{\"length\": ${M3OPASS_CREATE_PASS_LENGTH}}"
 
     generated_password=$(m3opass_service_fetch "$m3o_service" "$m3o_service_data" \
         | jq .password \
         | sed 's/"//g')
-    echo "Generated password: ${generated_password}"
+
+    [ -z "$M3OPASS_CREATE_QUIET" ] \
+        && echo "Generated password: ${generated_password}" \
+        || echo "$generated_password"
 }
     
 
