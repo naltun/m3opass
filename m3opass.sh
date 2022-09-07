@@ -4,17 +4,28 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 ###
+# START global variables
+###
+
+M3OPASS_VERSION=0.1.0
+
+###
+# END global variables
+###
+
+###
 # START usage messages
 ###
 
 m3opass_print_usage() {
-    echo "usage: m3opass COMMAND [ OPTS.. ] [ ARG ]"
+    echo "usage: m3opass COMMAND [ OPTS... ] [ ARG ]"
     echo
     echo "Available commands:"
     echo "  create      Create a new password"
     echo "  help        Print this help message"
     echo "  get         Get a stored password"
     echo "  store       Store a new password"
+    echo "  version     Display m3opass version"
     echo
     echo "Run \`m3popass COMMAND help' to print command-specific help messages"
 }
@@ -98,11 +109,14 @@ main() {
         set)
             m3opass_check_env
             ;;
+        version)
+            echo "$M3OPASS_VERSION" ;;
         *)
             m3opass_print_usage && exit 1
             ;;
     esac
-    
+
+    exit 0
 }
 
 main "$@"
