@@ -77,12 +77,13 @@ m3opass_service_fetch() {
 m3opass_create_pass() {
     [ "$#" -lt 1  ] && m3opass_print_create_usage && exit 1
     [ "$2" = help ] && m3opass_print_create_usage && exit 0
-    m3opass_check_env
 
     m3o_service="password/Generate"
     m3o_service_data='{"length": 16}'
 
-    generated_password=$(m3opass_service_fetch "$m3o_service" "$m3o_service_data" | jq .password | sed 's/"//g')
+    generated_password=$(m3opass_service_fetch "$m3o_service" "$m3o_service_data" \
+        | jq .password \
+        | sed 's/"//g')
     echo "Generated password: ${generated_password}"
 }
     
@@ -94,26 +95,16 @@ m3opass_create_pass() {
 main() {
     # Check to see if we have at least one argument, which is the minimum required
     [ ! $# -gt 0 ] && m3opass_print_usage && exit 1
+    [ "$1" = help ] && m3opass_print_usage && exit 0
+    m3opass_check_env
 
     # Handle the m3opass command supplied by the user
     case "$1" in
-        create)
-            m3opass_create_pass "$@"
-            ;;
-        help)
-            m3opass_print_usage && exit 0
-            ;;
-        get)
-            m3opass_check_env
-            ;;
-        set)
-            m3opass_check_env
-            ;;
-        version)
-            echo "$M3OPASS_VERSION" ;;
-        *)
-            m3opass_print_usage && exit 1
-            ;;
+        create)  m3opass_create_pass "$@"                ;;
+        get)     echo "Feature is a work in progress..." ;;
+        set)     echo "Feature is a work in progress..." ;;
+        version) echo "$M3OPASS_VERSION"                 ;;
+        *)       m3opass_print_usage && exit 1           ;;
     esac
 
     exit 0
